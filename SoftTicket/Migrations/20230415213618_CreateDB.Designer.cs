@@ -12,7 +12,7 @@ using SoftTicket.DAL;
 namespace SoftTicket.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20230415202530_CreateDB")]
+    [Migration("20230415213618_CreateDB")]
     partial class CreateDB
     {
         /// <inheritdoc />
@@ -35,7 +35,6 @@ namespace SoftTicket.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EntranceGate")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -46,14 +45,17 @@ namespace SoftTicket.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("TicketID")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UseDate")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id")
+                    b.HasIndex("TicketID")
                         .IsUnique();
 
                     b.ToTable("Tickets");

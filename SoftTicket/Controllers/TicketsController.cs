@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +23,9 @@ namespace SoftTicket.Controllers
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
-              return _context.Tickets != null ? 
-                          View(await _context.Tickets.ToListAsync()) :
-                          Problem("Entity set 'DataBaseContext.Tickets'  is null.");
+            return _context.Tickets != null ?
+                        View(await _context.Tickets.ToListAsync()) :
+                        Problem("Entity set 'DataBaseContext.Tickets'  is null.");
         }
 
         // GET: Tickets/Details/5
@@ -56,14 +57,34 @@ namespace SoftTicket.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UseDate,IsUsed,EntranceGate,Id,CreateDate,ModifiedDate")] Ticket ticket)
+        public async Task<IActionResult> Create([Bind("TicketID,UseDate,IsUsed,EntranceGate,Id,CreateDate,ModifiedDate")] Ticket ticket)
         {
             if (ModelState.IsValid)
             {
-                ticket.Id = Guid.NewGuid();
-                _context.Add(ticket);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    ticket.Id = Guid.NewGuid();
+                    ticket.CreateDate = DateTime.Now;
+                    _context.Add(ticket);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya se encuentra registado éste Ticket, Intentelo de nuevo!.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
             }
             return View(ticket);
         }
@@ -89,7 +110,7 @@ namespace SoftTicket.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("UseDate,IsUsed,EntranceGate,Id,CreateDate,ModifiedDate")] Ticket ticket)
+        public async Task<IActionResult> Edit(Guid id, [Bind("TicketID,UseDate,IsUsed,EntranceGate,Id,CreateDate,ModifiedDate")] Ticket ticket)
         {
             if (id != ticket.Id)
             {
@@ -100,21 +121,27 @@ namespace SoftTicket.Controllers
             {
                 try
                 {
+                    ticket.UseDate = DateTime.Now;
+                    ticket.ModifiedDate = DateTime.Now;
                     _context.Update(ticket);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException dbUpdateException)
                 {
-                    if (!TicketExists(ticket.Id))
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty, "Ya se encuentra registado éste Ticket, Intentelo de nuevo!.");
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
             }
             return View(ticket);
         }
@@ -151,14 +178,14 @@ namespace SoftTicket.Controllers
             {
                 _context.Tickets.Remove(ticket);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool TicketExists(Guid id)
         {
-          return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

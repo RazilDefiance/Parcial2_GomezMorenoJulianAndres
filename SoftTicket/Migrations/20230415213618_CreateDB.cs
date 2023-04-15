@@ -16,9 +16,10 @@ namespace SoftTicket.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UseDate = table.Column<DateTime>(type: "datetime2", maxLength: 50, nullable: false),
+                    TicketID = table.Column<int>(type: "int", maxLength: 50, nullable: false),
+                    UseDate = table.Column<DateTime>(type: "datetime2", maxLength: 50, nullable: true),
                     IsUsed = table.Column<bool>(type: "bit", maxLength: 50, nullable: false),
-                    EntranceGate = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    EntranceGate = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -28,9 +29,9 @@ namespace SoftTicket.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tickets_Id",
+                name: "IX_Tickets_TicketID",
                 table: "Tickets",
-                column: "Id",
+                column: "TicketID",
                 unique: true);
         }
 
