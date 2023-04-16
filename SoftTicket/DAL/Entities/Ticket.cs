@@ -17,6 +17,7 @@ namespace SoftTicket.DAL.Entities
         public bool IsUsed { get; set; }
 
         [Display(Name = "Entrada")]
+        //public List<string> EntranceGates { get; set; }
         [MaxLength(50)]
         public string? EntranceGate { get; set; }
     }

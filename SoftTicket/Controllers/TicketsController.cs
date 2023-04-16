@@ -119,28 +119,38 @@ namespace SoftTicket.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var chk = await _context.Tickets.
+                    FirstOrDefaultAsync(t => t.TicketID == ticket.TicketID && t.IsUsed);
+                if (chk == null)
                 {
-                    ticket.UseDate = DateTime.Now;
-                    ticket.ModifiedDate = DateTime.Now;
-                    _context.Update(ticket);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateException dbUpdateException)
-                {
-                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                    try
                     {
-                        ModelState.AddModelError(string.Empty, "Ya se encuentra registado éste Ticket, Intentelo de nuevo!.");
+                        ticket.UseDate = DateTime.Now;
+                        ticket.ModifiedDate = DateTime.Now;
+                        _context.Update(ticket);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
                     }
-                    else
+                    catch (DbUpdateException dbUpdateException)
                     {
-                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                        {
+                            ModelState.AddModelError(string.Empty, "Ya se encuentra registado éste Ticket, Intentelo de nuevo!.");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        ModelState.AddModelError(string.Empty, exception.Message);
                     }
                 }
-                catch (Exception exception)
+                else
                 {
-                    ModelState.AddModelError(string.Empty, exception.Message);
+                    ModelState.AddModelError(string.Empty, "El ticket[" + chk.TicketID + "] fue activado el día. [" + chk.UseDate + "] registrado por la entrada [" + chk.EntranceGate + "]");
+
                 }
             }
             return View(ticket);
