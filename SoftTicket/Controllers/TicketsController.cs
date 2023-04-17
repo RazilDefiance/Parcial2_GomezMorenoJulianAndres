@@ -57,7 +57,7 @@ namespace SoftTicket.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TicketID,UseDate,IsUsed,EntranceGate,Id,CreateDate,ModifiedDate")] Ticket ticket)
+        public async Task<IActionResult> Create([Bind("TicketID,UseDate,IsUsed,EntranceGate,Id,CreateDate,ModifiedDate")] Ticket ticket, Ticket.Entrance? entrance)
         {
             if (ModelState.IsValid)
             {
@@ -65,6 +65,7 @@ namespace SoftTicket.Controllers
                 {
                     ticket.Id = Guid.NewGuid();
                     ticket.CreateDate = DateTime.Now;
+                    ticket.EntranceGate = entrance;
                     _context.Add(ticket);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));

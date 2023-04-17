@@ -1,4 +1,5 @@
-﻿@model SoftTicket.DAL.Entities.Ticket
+﻿@using static SoftTicket.DAL.Entities.Ticket;
+@model SoftTicket.DAL.Entities.Ticket
 
 
 <div class="form-group">
@@ -13,7 +14,14 @@
 </div>
 <div class="form-group">
     <label asp-for="EntranceGate" class="control-label"></label>
-    <input asp-for="EntranceGate" class="form-control" />
+    @*<input asp-for="EntranceGate" class="form-control" /> *@
+    
+    @Html.DropDownListFor(t => t.EntranceGate,
+    new SelectList(Enum.GetValues(typeof(Entrance))),
+    "Select Entrance")
+
     <span asp-validation-for="EntranceGate" class="text-danger"></span>
+
+    
 </div>
 <br>

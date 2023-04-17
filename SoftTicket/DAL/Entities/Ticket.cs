@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SoftTicket.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
 namespace SoftTicket.DAL.Entities
@@ -17,8 +19,14 @@ namespace SoftTicket.DAL.Entities
         public bool IsUsed { get; set; }
 
         [Display(Name = "Entrada")]
-        //public List<string> EntranceGates { get; set; }
-        [MaxLength(50)]
-        public string? EntranceGate { get; set; }
+        public Entrance? EntranceGate { get; set; }
+
+        public enum Entrance
+        {
+            Norte,
+            Sur,
+            Oriental,
+            Occidental
+        }
     }
 }
