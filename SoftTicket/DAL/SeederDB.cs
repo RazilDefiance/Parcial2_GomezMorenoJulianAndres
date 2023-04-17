@@ -15,16 +15,16 @@ namespace SoftTicket.DAL
         public async Task SeederAsync()
         {
             await _context.Database.EnsureCreatedAsync(); // Crea la DB
-            await PopulateTicketsAsync(); // Llenamos Tickets hasta 50.000
+            PopulateTickets(); // Llenamos Tickets hasta 50.000
 
             await _context.SaveChangesAsync();
         }
 
-        private async Task PopulateTicketsAsync()
+        private void PopulateTickets()
         {
             if (!_context.Tickets.Any())
             {
-                for (int i = 1; i <= 500; i++)
+                for (int i = 1; i <= 50000; i++)
                 {
                     _context.Tickets.Add(new Entities.Ticket
                     {
